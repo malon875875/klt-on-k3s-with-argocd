@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/malon875875/klt-on-k3s-with-argocd
-    targetRevision: feature/marcos
+    targetRevision: main
     path: simplenode-dev
   destination: 
     server: https://kubernetes.default.svc
