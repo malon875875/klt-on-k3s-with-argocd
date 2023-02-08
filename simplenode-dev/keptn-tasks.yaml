@@ -1,11 +1,21 @@
+# returns error Sending fatal Alert BadCertificate
 apiVersion: lifecycle.keptn.sh/v1alpha1
 kind: KeptnTaskDefinition
 metadata:
   name: notify
+  namespace: simplenode-dev
 spec:
   function:
     inline:
-      code: | 
+      code: |
+            
+            // instead of this code, use rather https://raw.githubusercontent.com/keptn/lifecycle-controller/main/functions-runtime/samples/ts/slack.ts
+            
+            // BadCertificate error comes from using Zscaler, the hook works fine when disabling it
+            // adding Zscaler's certificate to DENO_TLS_CA_STORE and DENO_CERT to the env variables allowed could solve the issue
+            // or
+            // adding deno run --allow-net --cert ./ca.pem --allow-env=DATA,SECURE_DATA,CONTEXT "$SCRIPT" to https://github.com/keptn/lifecycle-toolkit/blob/main/functions-runtime/entrypoint.sh
+            
             let text = Deno.env.get("SECURE_DATA");
             let context = Deno.env.get("CONTEXT");
             let data;
@@ -30,7 +40,7 @@ spec:
                               "type": "section",
                               "text": {
                                 "type": "mrkdwn",
-                                "text": "Workload *${contextdata.workloadName}* notification!!"
+                                "text": "Workload *${contextdata.workloadName}* notification from KLC!!"
                               }
                             },
                             {
@@ -47,6 +57,10 @@ spec:
             let resp = await fetch("https://hooks.slack.com/services/" + data.slack_hook, {
                 method: "POST",
                 body,
+                headers: {
+                   "Content-Type": "application/json",
+                   Accept: "application/json",
+                },
             });
             console.log(resp)    
     secureParameters:
